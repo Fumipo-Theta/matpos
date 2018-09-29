@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from func_helper import pip, mapping, reducing
-from subgrid import Subgrid
+from .subgrid import Subgrid
 
 
 class MatPos:
