@@ -21,7 +21,7 @@ setup(
     url='https://github.com/Fumipo-Theta/matpos',
     install_requires=['numpy', 'matplotlib', 'func_helper==1.0.0'],
     dependency_links=[
-        'git+ssh://git@github.com/Fumipo-Theta/func_helper.git@master#egg=func_helper-1.0.0'],
+        'git+https://github.com/Fumipo-Theta/func_helper.git@master#egg=func_helper-1.0.0'],
     license=license,
     packages=find_packages(exclude=('tests', 'docs'))
 )
