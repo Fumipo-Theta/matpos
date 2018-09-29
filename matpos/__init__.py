@@ -1,1 +1,2 @@
-from core import MatPos
+from .matpos import MatPos
+from .subgrid import Subgrid
