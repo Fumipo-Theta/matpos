@@ -19,9 +19,9 @@ setup(
     author='Fumitoshi Morisato',
     author_email='fmorisato@gmail.com',
     url='https://github.com/Fumipo-Theta/matpos',
-    install_requires=['numpy', 'matplotlib'],
+    install_requires=['numpy', 'matplotlib', 'func_helper'],
     dependency_links=[
-        'git+ssh://git@github.com/Fumipo-Theta/func_helper.git@master#egg=func_helper'],
+        'git+ssh://git@github.com/Fumipo-Theta/func_helper.git#egg=func_helper'],
     license=license,
     packages=find_packages(exclude=('tests', 'docs'))
 )
