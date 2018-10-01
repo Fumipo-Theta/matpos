@@ -7,49 +7,79 @@ from .subgrid import Subgrid
 
 class MatPos:
     """
-    Subgridを追加するたび, Figureの左上と右下の座標を更新していくことにより,
-        後にSubgridのFigure上での相対座標を計算を可能にするクラス.
-    Figureの座標は, 追加されるSubgridのサイズに基づいて決まるので,
-        SubgridのサイズをFigure全体のサイズから逆算する必要がなく,
-        直接指定することができる.
-    Subgridは最初の一つはFigureの原点を基準として追加されるが,
-        2つ目以降はすでに位置とサイズを指定したSubgridを基準として
-        配置することができる.
+    Store information of:
+        1. Store and update size of staging area of subplots
+        2. Compute relative position of the new subplot to
+            the former subplot
     """
 
-    def __init__(self, padding={
-        "left": 0.5,
-        "right": 0.2,
-        "top": 0.1,
-        "bottom": 0.5
-    }):
-        self.origin = (0, 0)
-        self.padding = {"left": 0, "right": 0, "top": 0, "bottom": 0}
+    def __init__(self):
+        """
+        Generate instance.
 
-        self.set_padding(padding)
+
+        """
+        self.origin = (0,0)
         self.left_top = (0, 0)
         self.right_bottom = (0, 0)
+        self.default_figure_style = {
+            "facecolor" : "white"
+        }
 
-    def set_padding(self, padding):
+    def get_padding(self, padding):
+        """
+        Reset padding.
 
-        self.padding["left"] = padding.get("left", 0)
-        self.padding["right"] = padding.get("right", 0)
-        self.padding["top"] = padding.get("top", 0)
-        self.padding["bottom"] = padding.get("bottom", 0)
+        Parameters
+        ----------
+        padding: dict, optional
+            Defining size of padding around all subplots.
+            The unit of size is inches.
+            Padding of top, left, bottom, and right can be set.
+            Default is {
+                "top" : 0.1,
+                "left" : 0.5,
+                "bottom" : 0.5,
+                "right" : 0.2
+            }
+        """
+        _padding = {
+            "top": 0.1,
+            "left": 0.5,
+            "bottom": 0.5,
+            "right": 0.2
+        }
+        return {**_padding, **padding}
 
     def get_width(self):
+        """
+        Width of rectangle containing all plot areas of subplots.
+        Not containing axis and ticks area of subplots
+            and padding area of the figure.
+        """
         return self.right_bottom[0] - self.left_top[0]
 
     def get_height(self):
+        """
+        Hight of rectangle containing all plot areas of subplots.
+        Not containing axis and ticks area of subplots
+            and padding area of the figure.
+        """
         return self.right_bottom[1] - self.left_top[1]
 
     def get_size(self):
+        """
+        Tuple of (Width, Hight) of rectangle containing
+            all plot areas of subplots.
+        Not containing axis and ticks area of subplots
+            and padding area of the figure.
+        """
         return (self.get_width(), self.get_height())
 
     def __expand(self, sg_origin, sg_size):
         """
-        追加したSubgridがGridFigureの領域をはみ出す場合は,
-            GridFigureの領域を拡大する.
+        Expanding rectangle of plot areas
+            if the new subplot over the rectangle.
         """
         self.left_top = (
             np.min([self.left_top[0], sg_origin[0]]),
@@ -62,6 +92,10 @@ class MatPos:
         )
 
     def from_left_top(self, sg, size, offset=(0, 0), **kwd):
+        """
+        Layout a new subplot based on the position of
+            left-top corner of the former subplot.
+        """
         next_origin = (
             sg.origin[0] + offset[0],
             sg.origin[1] + offset[1]
@@ -118,9 +152,31 @@ class MatPos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_right(self, sg, size,  distance=0, offset=(0, 0), **kwd):
+    def add_right(self, sg, size,  margin=0, offset=(0, 0), **kwd):
+        """
+        Layout a new subplot on the right side of the
+            former subplot.
 
-        d = distance[0] if type(distance) is tuple else distance
+        Parameters
+        ----------
+        sg: Subgrid
+            An instance of Subgrid.
+            The position of the new subplot is calculated
+                form the subgrid.
+        size: tuple(float)
+            (width, height) of plot area of the new subplot.
+        margin: float, optional
+            Distance between the former subplot and the new
+                one.
+            Default value is 0.
+        offset: tuple(float), optional
+            (horizontal, vertical) offset from the relative
+                origin of the new subplot.
+            If you want to adjust margin between 2 subplots,
+                please use margin parameter.
+            Default velue is (0,0)
+        """
+        d = margin[0] if type(margin) is tuple else margin
 
         next_origin = (
             sg.origin[0] + sg.get_width() + d + offset[0],
@@ -136,9 +192,9 @@ class MatPos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_bottom(self, sg, size,  distance=0, offset=(0, 0), **kwd):
+    def add_bottom(self, sg, size,  margin=0, offset=(0, 0), **kwd):
 
-        d = distance[1] if type(distance) is tuple else distance
+        d = margin[1] if type(margin) is tuple else margin
 
         next_origin = (
             sg.origin[0] + offset[0],
@@ -154,8 +210,8 @@ class MatPos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_top(self, sg, size,  distance=0, offset=(0, 0), **kwd):
-        d = distance[1] if type(distance) is tuple else distance
+    def add_top(self, sg, size,  margin=0, offset=(0, 0), **kwd):
+        d = margin[1] if type(margin) is tuple else margin
         next_origin = (
             sg.origin[0] + offset[0],
             sg.origin[1] - size[1] - d - offset[1]
@@ -170,8 +226,8 @@ class MatPos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_left(self, sg, size,  distance=0, offset=(0, 0), **kwd):
-        d = distance[0] if type(distance) is tuple else distance
+    def add_left(self, sg, size,  margin=0, offset=(0, 0), **kwd):
+        d = margin[0] if type(margin) is tuple else margin
         next_origin = (
             sg.origin[0] - offset[0] - d - size[0],
             sg.origin[1] + offset[1]
@@ -186,7 +242,7 @@ class MatPos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_grid(self, sizes, column=1, distance=(0, 0), **kwd):
+    def add_grid(self, sizes, column=1, margin=(0, 0), **kwd):
         """
         Generates subgrids aligning as grid layout.
         Order of subgrid is column prefered.
@@ -228,7 +284,7 @@ class MatPos:
 
         """
 
-        d = distance if type(distance) is tuple else (distance, distance)
+        d = margin if type(margin) is tuple else (margin, margin)
 
         size, *rest_sizes = sizes
         a = self.from_left_top(self, size)
@@ -244,35 +300,60 @@ class MatPos:
 
         return reducing(reducer)(rest_sizes)([a])
 
-    def __scale(self, v):
-        size = np.add(self.get_size(), (self.padding["left"]+self.padding["right"], self.padding["top"] + self.padding["bottom"])
+    def __scale(self, v, padding={}):
+        """
+        Scaling position in figure by figure size.
+        Padding is took into considered.
+        """
+        pad = self.get_padding(padding)
+
+        size = np.add(self.get_size(), (pad["left"]+pad["right"], pad["top"] + pad["bottom"])
                       )
 
         if 0 in size:
             raise SystemError("Size cannot be zero")
 
         origin = np.add(
-            self.left_top, (-self.padding["left"], -self.padding["top"]))
+            self.left_top, (-pad["left"], -pad["top"]))
         # r = (v - o)/s
         return tuple(
             np.divide(np.add(v, np.multiply(origin, -1)), size)
         )
 
-    def relative(self, subgrid):
-        rel_left_top = self.__scale(subgrid.get_left_top())
-        rel_right_bottom = self.__scale(subgrid.get_right_bottom())
+    def relative(self, subgrid, padding={}):
+        """
+        Return scaled position of left-top and right-bottom
+            corners of a subgrid.
+        """
+
+        rel_left_top = self.__scale(subgrid.get_left_top(), padding)
+        rel_right_bottom = self.__scale(subgrid.get_right_bottom(), padding)
         return (rel_left_top, rel_right_bottom)
 
-    def axes_position(self, subgrid):
-        lt, rb = self.relative(subgrid)
+    def axes_position(self, subgrid, padding={}):
+        """
+        Return matplotlib style position of ax.
+        """
+        lt, rb = self.relative(subgrid, padding)
         position = [lt[0], 1 - rb[1], rb[0] - lt[0], rb[1] - lt[1]]
         return position
 
-    def generate_axes(self, figure):
+    def generate_axes(self, figure, padding={}):
+        """
+        Generate matplotlib.pyplot.axsubplot.
+
+        Parameter
+        ---------
+        figure: matplotlib.pyplot.figure
+
+            Returns
+            -------
+            ax: matplotlib.pyplot.axsubplot
+        """
         def f(subgrid):
             ax = figure.add_subplot(
                 111,
-                position=self.axes_position(subgrid),
+                position=self.axes_position(subgrid, padding),
                 **subgrid.get_axes_kwargs(),
                 **subgrid.get_shared_axis()
             )
@@ -280,12 +361,46 @@ class MatPos:
             return ax
         return f
 
-    def figure_and_axes(self, subgrids, figsize=None):
+    def figure_and_axes(self, subgrids, padding={}, figsize=None, **kwargs):
+        """
+        Generate matplotlib.pyplot.figure and its subplots of
+            matplotlib.pyplot.axsubplot.
+        """
         fig = plt.figure(figsize=self.get_size()
-                         if figsize is None else figsize)
+                         if figsize is None else figsize,
+                         **{
+                            **self.default_figure_style,
+                             **kwargs
+                            }
+                         )
         axes = pip(
-            mapping(self.generate_axes(fig)),
+            mapping(self.generate_axes(fig, padding)),
             list
         )(subgrids)
 
         return(fig, axes)
+
+    @staticmethod
+    def fontsize_to_inch(fontsize, n):
+        """
+        Assist determin padding size when font size
+            and number of characters are given.
+
+        Parameters
+        ----------
+        fontsize: float
+            Unit is px.
+        n: float
+            Number of characters.
+
+        Return
+        ------
+        padding: float
+            Unit of inches
+
+        Usage
+        -----
+        padding = MatPos.fontsize_to_point(12, 5)
+
+        """
+        return fontsize*n/72

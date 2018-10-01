@@ -3,7 +3,7 @@
 Providing easy method for layouting subplots in using matplotlib.
 
 When you want to make complex layout, you can define absolute size of each subplot.
-And you can also set its position according to relative distance from the other subplot with this package.
+And you can also set its position according to relative margin from the other subplot with this package.
 
 ## Usage
 
@@ -66,27 +66,27 @@ axs[2].text(0.5,0.5,"lb")
 axs[3].text(0.5,0.5,"rt")
 axs[4].text(0.5,0.5,"rb")
 ```
-The above code generates five subplots: [0] is outer subplot having 5 inches x 5 inches plot area; [1] ~ [4] are inner subplots they have 2 x 2 or 1 x 1 size of plot area.
+The above code generates 5 subplots: [0] is outer subplot having 5 inches x 5 inches plot area; [1] ~ [4] are inner subplots they have 2 x 2 or 1 x 1 size of plot area.
 Inner subplots are layouted from 4 apexes of plot area of outer subplot.
-Parameter of "offset" is distance between apexes of plot areas of former and latter subplots.
+Parameter of "offset" is margin between apexes of plot areas of former and latter subplots.
 
 
 ![Layout inset](./docs/image/matpos_inset.png)
 
 The next group can be used as layouting the new subplot adjacent to a former subgrid.
-* add_top(subgrid, size, distance, offset)
-* add_left(subgrid, size, distance, offset)
-* add_right(subgrid, size, distance, offset)
-* add_bottom(subgrid, size, distance, offset)
+* add_top(subgrid, size, margin, offset)
+* add_left(subgrid, size, margin, offset)
+* add_right(subgrid, size, margin, offset)
+* add_bottom(subgrid, size, margin, offset)
 
 ```python
 mp = MatPos(padding)
 
 a = mp.add_bottom(mp,(3,3))
-b = mp.add_top(a, (3,3), distance=0.5)
-c = mp.add_right(a, (3,3), distance=0.5)
-d = mp.add_bottom(a, (3,3), distance=0.5)
-e = mp.add_left(a, (3,3), distance=0.5)
+b = mp.add_top(a, (3,3), margin=0.5)
+c = mp.add_right(a, (3,3), margin=0.5)
+d = mp.add_bottom(a, (3,3), margin=0.5)
+e = mp.add_left(a, (3,3), margin=0.5)
 
 fig, axes = mp.figure_and_axes([a,b,c,d,e])
 
@@ -108,8 +108,8 @@ And offset is indicated, position of the next subplot is shiftted.
 mp = MatPos(padding)
 
 a = mp.from_left_top(gf,(4,3))
-b = mp.add_right(a, (1,None), distance=0.5, offset=(0,1))
-c = mp.add_bottom(a, (None,1), distance=0.5, offset=(1,0))
+b = mp.add_right(a, (1,None), margin=0.5, offset=(0,1))
+c = mp.add_bottom(a, (None,1), margin=0.5, offset=(1,0))
 
 fig, axes = gf.figure_and_axes([a,b,c])
 
@@ -121,10 +121,10 @@ axes[2].text(0.5,0.5,"c")
 ![](./docs/image/matpos_expand.png)
 
 MatPos also provides easy way to generate grid layout by `add_grid` method.
-It requires list of sizes of subplots, number of culumns for grid, and tuple of horizontal and vertical distance between subplots.
+It requires list of sizes of subplots, number of culumns for grid, and tuple of horizontal and vertical margin between subplots.
 
 ```python
-subgrids = mp.add_grid([(2,2) for i in range(9)], column=3, distance=(1,0.5))
+subgrids = mp.add_grid([(2,2) for i in range(9)], column=3, margin=(1,0.5))
 
 fig, axs = mp.figure_and_axes(subgrids)
 ```
