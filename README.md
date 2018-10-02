@@ -23,7 +23,6 @@ from matpos import MatPos
 
 3. Generate a manager for layoutong subplots.
 
-Pass dict of padding around subplots. The unit is inches.
 
 ```python
 padding = {
@@ -33,7 +32,7 @@ padding = {
     "bottom" : 1
 }
 
-mp = MatPos(padding)
+mp = MatPos()
 ```
 
 4. Set size and relative position of each subplot.
@@ -50,7 +49,7 @@ For the first subgrid, these method recieve instance of MatPos.
 MatPos objects generate matplotlib.pyplot.figure and matplotlib.pyplot.axsubplot objects from the subgrids by `figure_and_axes` method.
 
 ```python
-mp = MatPos(padding)
+mp = MatPos()
 
 outer = mp.from_left_top(mp, (5,5))
 lt = mp.from_left_top(outer, (2,2), (0.5,0.5))
@@ -58,7 +57,7 @@ lb = mp.from_left_bottom(outer, (1,1), (0.5,0.5))
 rt = mp.from_right_top(outer, (1,1), (0.5,0.5))
 rb = mp.from_right_bottom(outer, (2,2), (0.5,0.5))
 
-fig, axs = mp.figure_and_axes([outer, lt, lb, rt, rb])
+fig, axs = mp.figure_and_axes([outer, lt, lb, rt, rb],padding)
 
 axs[0].text(0.05,0.95, "outer")
 axs[1].text(0.5,0.5,"lt")
@@ -80,7 +79,7 @@ The next group can be used as layouting the new subplot adjacent to a former sub
 * add_bottom(subgrid, size, margin, offset)
 
 ```python
-mp = MatPos(padding)
+mp = MatPos()
 
 a = mp.add_bottom(mp,(3,3))
 b = mp.add_top(a, (3,3), margin=0.5)
@@ -88,13 +87,13 @@ c = mp.add_right(a, (3,3), margin=0.5)
 d = mp.add_bottom(a, (3,3), margin=0.5)
 e = mp.add_left(a, (3,3), margin=0.5)
 
-fig, axes = mp.figure_and_axes([a,b,c,d,e])
+fig, axs = mp.figure_and_axes([a,b,c,d,e], padding)
 
-axes[0].text(0.5,0.5,"a")
-axes[1].text(0.5,0.5,"b")
-axes[2].text(0.5,0.5,"c")
-axes[3].text(0.5,0.5,"d")
-axes[4].text(0.5,0.5,"e")
+axs[0].text(0.5,0.5,"a")
+axs[1].text(0.5,0.5,"b")
+axs[2].text(0.5,0.5,"c")
+axs[3].text(0.5,0.5,"d")
+axs[4].text(0.5,0.5,"e")
 ```
 
 The above code generates five subplots.
@@ -105,17 +104,17 @@ If size contains None, width or height is expanded to fit the figure size at the
 And offset is indicated, position of the next subplot is shiftted.
 
 ```python
-mp = MatPos(padding)
+mp = MatPos()
 
 a = mp.from_left_top(gf,(4,3))
 b = mp.add_right(a, (1,None), margin=0.5, offset=(0,1))
 c = mp.add_bottom(a, (None,1), margin=0.5, offset=(1,0))
 
-fig, axes = gf.figure_and_axes([a,b,c])
+fig, axs = gf.figure_and_axes([a,b,c], padding)
 
-axes[0].text(0.5,0.5,"a")
-axes[1].text(0.5,0.5,"b")
-axes[2].text(0.5,0.5,"c")
+axs[0].text(0.5,0.5,"a")
+axs[1].text(0.5,0.5,"b")
+axs[2].text(0.5,0.5,"c")
 ```
 
 ![](./docs/image/matpos_expand.png)
@@ -132,3 +131,9 @@ fig, axs = mp.figure_and_axes(subgrids)
 The above code generates nine subplots on 3 x 3 grid.
 
 ![](./docs/image/matpos_grid.png)
+
+## Optional function
+
+`MatPos.figure_and_axes` takes additional key word arguments same with `matplotlib.pyplot.figure.Figure`, for example, `figsize` and `facecolor`.
+Therefore, you can overwrite figure size after define subgrids.
+The sizes of subgrids are automatically changed in plot.
