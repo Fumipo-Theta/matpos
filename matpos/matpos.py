@@ -298,7 +298,7 @@ class MatPos:
                 newSg = self.add_right(acc[l-1], e, d, **kwd)
             return [*acc, newSg]
 
-        return reducing(reducer)(rest_sizes)([a])
+        return reducing(reducer)([a])(rest_sizes)
 
     def __scale(self, v, padding={}):
         """
