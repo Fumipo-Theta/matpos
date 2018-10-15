@@ -28,7 +28,7 @@
 
 from matdat import Figure, Subplot, SubplotTime
 from matdat import linePlot, scatterPlot
-from matpos import MatPos
+from matpos import Matpos
 import matplotlib.pyplot as plt
 
 # %matplotlib inline
@@ -41,7 +41,7 @@ b = f.add_subplot(111,position=[0.5,0.5, 0.5,0.5], sharex=a)
 a.set_xlim([0,2])
 
 # +
-mp = MatPos()
+mp = Matpos()
 
 outer = mp.from_left_top(mp, (5,5))
 lt = mp.from_left_top(outer, (2,2), (0.5,0.5))
@@ -121,7 +121,7 @@ figure_size_setting = {"size":(4,3), "column":2, "margin":(1,2), "padding":{}}
 fig, ax = figure.show(figure_size_setting,test=False, facecolor="gray")
 
 # Custom layout mode
-mp = MatPos()
+mp = Matpos()
 a = mp.from_left_top(mp, (2,2))
 b = mp.add_bottom(a, (2,1), margin=1)
 c = mp.add_right(a, (2,None), margin=1)
@@ -132,12 +132,12 @@ fig, ax = figure.show(mp, [a,b,c])
 Figure?
 
 # +
-matpos = MatPos()
+matpos = Matpos()
 a = matpos.add_right(matpos,(4,3))
 c = matpos.add_bottom(a, (4,3), margin=1, sharex=a)
 b = matpos.add_right(a, (4, None), margin=1)
 
-fig, ax = figure.show_custom(matpos, [a,b,c])
+fig, ax = figure.show(matpos, [a,b,c])
 ax["a"].grid(True)
 
 # +
@@ -180,7 +180,7 @@ padding={
 }
 
 
-gf = MatPos()
+gf = Matpos()
 
 """
 a a a a
@@ -270,7 +270,7 @@ axes[3].text(0.5,0.5,"d")
 # +
 # Tests
 
-gf = MatPos()
+gf = Matpos()
 
 a = gf.from_left_top(gf,(4,3))
 b = gf.add_right(a, (1,None), offset=(0.5,1))
@@ -288,7 +288,7 @@ axes[2].text(0.5,0.5,"c")
 # +
 # Tests
 
-gf = MatPos()
+gf = Matpos()
 
 a = gf.from_left_top(gf,(4,3))
 b = gf.add_right(a, (1,None), offset=(0.5,1))
@@ -308,7 +308,7 @@ axes[3].set_yticks([])
 # +
 # Tests
 
-gf = MatPos()
+gf = Matpos()
 
 a = gf.add_bottom(gf,(6,3))
 b = gf.add_bottom(a, (6,3), offset=(0,0.5))
@@ -348,7 +348,7 @@ axes[3].text(0.5,0.5,"d")
 # ```
 
 # +
-gf = MatPos()
+gf = Matpos()
 
 
 
@@ -368,7 +368,7 @@ d = gf.add_right(sgs[1], (4,None), (0.5,0))
 fig, axes = gf.figure_and_axes([*sgs,d])
 
 # +
-gf = MatPos({"left":1, "right":1, "top":1,"bottom":1})
+gf = Matpos()
 
 """
 1 2 3
@@ -388,10 +388,10 @@ reduce(
 sgs =  gf.add_grid([(2,2) for i in range(9)], 3, (1,0.5))
 print(gf.get_size())
 print(gf.left_top)
-fig, axes = gf.figure_and_axes(sgs)
+fig, axes = gf.figure_and_axes(sgs, padding={"left":1, "right":1, "top":1,"bottom":1})
 
 # +
-mp = MatPos()
+mp = Matpos()
 
 a = mp.add_bottom(mp,(2,2))
 b = mp.add_top(a, (1,1), margin=0.5)

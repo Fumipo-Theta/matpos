@@ -3,5 +3,5 @@ MatPos
 FigureSizing
 """
 
-from .matpos.matpos import MatPos
+from .matpos.matpos import Matpos
 from .matpos.figure_sizing import FigureSizing

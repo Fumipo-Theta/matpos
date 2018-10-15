@@ -5,7 +5,7 @@ from func_helper import pip, mapping, reducing
 from .subgrid import Subgrid
 
 
-class MatPos:
+class Matpos:
     """
     Store information of:
         1. Store and update size of staging area of subplots
@@ -390,9 +390,9 @@ class MatPos:
         """
 
         fig = plt.figure(
-                figsize=self.get_size() if figsize is None else figsize,
-                **dict(self.default_figure_style, **kwargs)
-            )
+            figsize=self.get_size() if figsize is None else figsize,
+            **dict(self.default_figure_style, **kwargs)
+        )
         axs = pip(
             mapping(self.generate_axes(fig, padding)),
             list
