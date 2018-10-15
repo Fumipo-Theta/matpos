@@ -32,7 +32,7 @@ padding = {
     "bottom" : 1
 }
 
-mp = MatPos()
+mp = Matpos()
 ```
 
 4. Set size and relative position of each subplot.
@@ -49,7 +49,7 @@ For the first subgrid, these method recieve instance of MatPos.
 MatPos objects generate matplotlib.pyplot.figure and matplotlib.pyplot.axsubplot objects from the subgrids by `figure_and_axes` method.
 
 ```python
-mp = MatPos()
+mp = Matpos()
 
 outer = mp.from_left_top(mp, (5,5))
 lt = mp.from_left_top(outer, (2,2), (0.5,0.5))
@@ -79,7 +79,7 @@ The next group can be used as layouting the new subplot adjacent to a former sub
 * add_bottom(subgrid, size, margin, offset)
 
 ```python
-mp = MatPos()
+mp = Matpos()
 
 a = mp.add_bottom(mp,(3,3))
 b = mp.add_top(a, (3,3), margin=0.5)
@@ -104,7 +104,7 @@ If size contains None, width or height is expanded to fit the figure size at the
 And offset is indicated, position of the next subplot is shiftted.
 
 ```python
-mp = MatPos()
+mp = Matpos()
 
 a = mp.from_left_top(gf,(4,3))
 b = mp.add_right(a, (1,None), margin=0.5, offset=(0,1))
