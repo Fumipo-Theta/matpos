@@ -27,7 +27,7 @@
 # +
 
 from matdat import Figure, Subplot, SubplotTime
-from matdat import linePlot, scatterPlot
+
 from matpos import Matpos
 import matplotlib.pyplot as plt
 
@@ -41,13 +41,14 @@ b = f.add_subplot(111,position=[0.5,0.5, 0.5,0.5], sharex=a)
 a.set_xlim([0,2])
 
 # +
-mp = Matpos()
+mp = Matpos(unit="inches")
 
 outer = mp.from_left_top(mp, (5,5))
 lt = mp.from_left_top(outer, (2,2), (0.5,0.5))
 lb = mp.from_left_bottom(outer, (1,1), (0.5,0.5))
 rt = mp.from_right_top(outer, (1,1), (0.5,0.5))
 rb = mp.from_right_bottom(outer, (2,2), (0.5,0.5))
+
 
 fig, axs = mp.figure_and_axes([outer, lt, lb, rt, rb]
                               ,padding={"left":1, "right":1, "top":1,"bottom":1}
@@ -58,6 +59,15 @@ axs[1].text(0.5,0.5,"lt")
 axs[2].text(0.5,0.5,"lb")
 axs[3].text(0.5,0.5,"rt")
 axs[4].text(0.5,0.5,"rb")
+
+
+# +
+mp = Matpos(unit="px",dpi=72)
+
+outer = mp.from_left_top(mp, (72,72))
+
+
+mp.figure_and_axes([outer])
 # -
 
 ax = axs[0]
@@ -308,7 +318,7 @@ axes[3].set_yticks([])
 # +
 # Tests
 
-gf = Matpos()
+gf = Matpos(unit="")
 
 a = gf.add_bottom(gf,(6,3))
 b = gf.add_bottom(a, (6,3), offset=(0,0.5))
@@ -348,7 +358,7 @@ axes[3].text(0.5,0.5,"d")
 # ```
 
 # +
-gf = Matpos()
+gf = Matpos(unit="px",dpi=100)
 
 
 
@@ -361,11 +371,11 @@ reduce(
 """
 
 
-sgs =  gf.add_grid([(4,1),(4,2.5),(4,1)], 2, (0.5,0.5))
+sgs =  gf.add_grid([(400,200),(200,200),(400,300)], 2, (50,50))
 
-d = gf.add_right(sgs[1], (4,None), (0.5,0))
+d = gf.add_right(sgs[1], (400,None), (50,0))
 
-fig, axes = gf.figure_and_axes([*sgs,d])
+gf.figure_and_axes([*sgs,d])
 
 # +
 gf = Matpos()

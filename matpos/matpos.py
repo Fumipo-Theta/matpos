@@ -5,6 +5,19 @@ from func_helper import pip, mapping, reducing
 from .subgrid import Subgrid
 
 
+def vectorize(f):
+    def apply(arg):
+        if type(arg) is list:
+            return [f(x) for x in arg]
+        elif type(arg) is tuple:
+            return tuple([f(x) for x in arg])
+        elif type(arg) is dict:
+            return dict([(k, f(v)) for k, v in arg.items()])
+        else:
+            return f(arg)
+    return apply
+
+
 class Matpos:
     """
     Store information of:
@@ -13,18 +26,42 @@ class Matpos:
             the former subplot
     """
 
-    def __init__(self):
+    def __init__(self, unit="inches", dpi=72):
         """
         Generate instance.
+        With setup unit of length and dpi optionally.
 
+        Parameters
+        ----------
+        unit: str, optional
+            Unit of length for subplot sizes, margins of among them.
+            "inches", "mm", "cm", or "px".
+            Default value is "inches".
+        dpi: int, optional
+            Value of dot par inches.
+            Necessary in translate inches to px.
+            Default value is 72.
 
         """
+        self.dpi = dpi
         self.origin = (0, 0)
         self.left_top = (0, 0)
         self.right_bottom = (0, 0)
         self.default_figure_style = {
             "facecolor": "white"
         }
+        self.to_inches = Matpos.IToInches(unit, dpi)
+
+    @staticmethod
+    def IToInches(unit, dpi):
+        if unit is "mm":
+            return vectorize(lambda x: x/25.4 if x else x)
+        elif unit is "cm":
+            return vectorize(lambda x: x/2.54 if x else x)
+        elif unit is "px":
+            return vectorize(lambda x: x/dpi if x else x)
+        else:
+            return vectorize(lambda x: x)
 
     def get_padding(self, padding):
         """
@@ -49,7 +86,7 @@ class Matpos:
             "bottom": 0.5,
             "right": 0.2
         }
-        return {**_padding, **padding}
+        return {**_padding, **self.to_inches(padding)}
 
     def get_width(self):
         """
@@ -57,7 +94,7 @@ class Matpos:
         Not containing axis and ticks area of subplots
             and padding area of the figure.
         """
-        return self.right_bottom[0] - self.left_top[0]
+        return (self.right_bottom[0] - self.left_top[0])
 
     def get_height(self):
         """
@@ -65,7 +102,7 @@ class Matpos:
         Not containing axis and ticks area of subplots
             and padding area of the figure.
         """
-        return self.right_bottom[1] - self.left_top[1]
+        return (self.right_bottom[1] - self.left_top[1])
 
     def get_size(self):
         """
@@ -96,57 +133,68 @@ class Matpos:
         Layout a new subplot based on the position of
             left-top corner of the former subplot.
         """
+        _offset = self.to_inches(offset)
+        _size = self.to_inches(size)
+
         next_origin = (
-            sg.origin[0] + offset[0],
-            sg.origin[1] + offset[1]
+            sg.origin[0] + _offset[0],
+            sg.origin[1] + _offset[1]
         )
 
         next_size = (
-            size[0] if size[0] is not None else sg.get_width() - offset[0],
-            size[1] if size[1] is not None else sg.get_height() - offset[1]
+            _size[0] if _size[0] is not None else sg.get_width() - _offset[0],
+            _size[1] if _size[1] is not None else sg.get_height() - _offset[1]
         )
 
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin,  **kwd)
 
     def from_left_bottom(self, sg, size, offset=(0, 0),  **kwd):
+        _offset = self.to_inches(offset)
+        _size = self.to_inches(size)
 
         next_size = (
-            size[0] if size[0] is not None else sg.get_width() - offset[0],
-            size[1] if size[1] is not None else sg.get_height() - offset[1]
+            _size[0] if _size[0] is not None else sg.get_width() - _offset[0],
+            _size[1] if _size[1] is not None else sg.get_height() - _offset[1]
         )
 
         next_origin = (
-            sg.origin[0] + offset[0],
-            sg.origin[1] + sg.size[1] - offset[1] - next_size[1]
+            sg.origin[0] + _offset[0],
+            sg.origin[1] + sg.size[1] - _offset[1] - next_size[1]
         )
 
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin,  **kwd)
 
     def from_right_top(self, sg, size, offset=(0, 0),  **kwd):
+        _offset = self.to_inches(offset)
+        _size = self.to_inches(size)
+
         next_size = (
-            size[0] if size[0] is not None else sg.get_width() - offset[0],
-            size[1] if size[1] is not None else sg.get_height() - offset[1]
+            _size[0] if _size[0] is not None else sg.get_width() - _offset[0],
+            _size[1] if _size[1] is not None else sg.get_height() - _offset[1]
         )
 
         next_origin = (
-            sg.origin[0] + sg.size[0] - offset[0] - next_size[0],
-            sg.origin[1] + offset[1]
+            sg.origin[0] + sg.size[0] - _offset[0] - next_size[0],
+            sg.origin[1] + _offset[1]
         )
 
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
     def from_right_bottom(self, sg, size, offset=(0, 0), **kwd):
+        _offset = self.to_inches(offset)
+        _size = self.to_inches(size)
+
         next_size = (
-            size[0] if size[0] is not None else sg.get_width() - offset[0],
-            size[1] if size[1] is not None else sg.get_height() - offset[1]
+            _size[0] if _size[0] is not None else sg.get_width() - _offset[0],
+            _size[1] if _size[1] is not None else sg.get_height() - _offset[1]
         )
 
         next_origin = (
-            sg.origin[0] + sg.get_width() - offset[0] - next_size[0],
-            sg.origin[1] + sg.get_height() - offset[1] - next_size[1]
+            sg.origin[0] + sg.get_width() - _offset[0] - next_size[0],
+            sg.origin[1] + sg.get_height() - _offset[1] - next_size[1]
         )
 
         self.__expand(next_origin, next_size)
@@ -176,16 +224,20 @@ class Matpos:
                 please use margin parameter.
             Default velue is (0,0)
         """
-        d = margin[0] if type(margin) is tuple else margin
+        _offset = self.to_inches(offset)
+        _size = self.to_inches(size)
+        _margin = self.to_inches(margin)
+
+        d = _margin[0] if type(_margin) is tuple else _margin
 
         next_origin = (
-            sg.origin[0] + sg.get_width() + d + offset[0],
-            sg.origin[1] + offset[1]
+            sg.origin[0] + sg.get_width() + d + _offset[0],
+            sg.origin[1] + _offset[1]
         )
 
         next_size = (
-            size[0],
-            size[1] if size[1] is not None else self.get_height() -
+            _size[0],
+            _size[1] if _size[1] is not None else self.get_height() -
             next_origin[1]
         )
 
@@ -193,49 +245,60 @@ class Matpos:
         return Subgrid(next_size, next_origin, **kwd)
 
     def add_bottom(self, sg, size,  margin=0, offset=(0, 0), **kwd):
+        _offset = self.to_inches(offset)
+        _size = self.to_inches(size)
+        _margin = self.to_inches(margin)
 
-        d = margin[1] if type(margin) is tuple else margin
+        d = _margin[1] if type(_margin) is tuple else _margin
 
         next_origin = (
-            sg.origin[0] + offset[0],
-            sg.origin[1] + sg.get_height() + d + offset[1]
+            sg.origin[0] + _offset[0],
+            sg.origin[1] + sg.get_height() + d + _offset[1]
         )
 
         next_size = (
-            size[0] if size[0] is not None else self.get_width() -
+            _size[0] if _size[0] is not None else self.get_width() -
             next_origin[0],
-            size[1]
+            _size[1]
         )
 
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
     def add_top(self, sg, size,  margin=0, offset=(0, 0), **kwd):
-        d = margin[1] if type(margin) is tuple else margin
+        _offset = self.to_inches(offset)
+        _size = self.to_inches(size)
+        _margin = self.to_inches(margin)
+
+        d = _margin[1] if type(_margin) is tuple else _margin
         next_origin = (
-            sg.origin[0] + offset[0],
-            sg.origin[1] - size[1] - d - offset[1]
+            sg.origin[0] + _offset[0],
+            sg.origin[1] - _size[1] - d - _offset[1]
         )
 
         next_size = (
-            size[0] if size[0] is not None else self.get_width() -
+            _size[0] if _size[0] is not None else self.get_width() -
             next_origin[0],
-            size[1]
+            _size[1]
         )
 
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
     def add_left(self, sg, size,  margin=0, offset=(0, 0), **kwd):
-        d = margin[0] if type(margin) is tuple else margin
+        _offset = self.to_inches(offset)
+        _size = self.to_inches(size)
+        _margin = self.to_inches(margin)
+
+        d = _margin[0] if type(_margin) is tuple else _margin
         next_origin = (
-            sg.origin[0] - offset[0] - d - size[0],
-            sg.origin[1] + offset[1]
+            sg.origin[0] - _offset[0] - d - _size[0],
+            sg.origin[1] + _offset[1]
         )
 
         next_size = (
-            size[0],
-            size[1] if size[1] is not None else self.get_height() -
+            _size[0],
+            _size[1] if _size[1] is not None else self.get_height() -
             next_origin[1]
         )
 
@@ -361,7 +424,7 @@ class Matpos:
             return ax
         return f
 
-    def figure_and_axes(self, subgrids, padding={}, figsize=None, **kwargs):
+    def figure_and_axes(self, subgrids, padding={}, figsize=None, dpi=None, **kwargs):
         """
         Generate matplotlib.pyplot.figure and its subplots of
             matplotlib.pyplot.axsubplot.
@@ -391,6 +454,7 @@ class Matpos:
 
         fig = plt.figure(
             figsize=self.get_size() if figsize is None else figsize,
+            dpi=self.dpi,
             **dict(self.default_figure_style, **kwargs)
         )
         axs = pip(
