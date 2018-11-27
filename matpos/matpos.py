@@ -50,10 +50,10 @@ class Matpos:
         self.default_figure_style = {
             "facecolor": "white"
         }
-        self.to_inches = Matpos.IToInches(unit, dpi)
+        self.to_default_unit = Matpos.IToDefaultUnit(unit, dpi)
 
     @staticmethod
-    def IToInches(unit, dpi):
+    def IToDefaultUnit(unit, dpi):
         if unit is "mm":
             return vectorize(lambda x: x/25.4 if x else x)
         elif unit is "cm":
@@ -86,7 +86,7 @@ class Matpos:
             "bottom": 0.5,
             "right": 0.2
         }
-        return {**_padding, **self.to_inches(padding)}
+        return {**_padding, **self.to_default_unit(padding)}
 
     def get_width(self):
         """
@@ -133,8 +133,8 @@ class Matpos:
         Layout a new subplot based on the position of
             left-top corner of the former subplot.
         """
-        _offset = self.to_inches(offset)
-        _size = self.to_inches(size)
+        _offset = self.to_default_unit(offset)
+        _size = self.to_default_unit(size)
 
         next_origin = (
             sg.origin[0] + _offset[0],
@@ -150,8 +150,8 @@ class Matpos:
         return Subgrid(next_size, next_origin,  **kwd)
 
     def from_left_bottom(self, sg, size, offset=(0, 0),  **kwd):
-        _offset = self.to_inches(offset)
-        _size = self.to_inches(size)
+        _offset = self.to_default_unit(offset)
+        _size = self.to_default_unit(size)
 
         next_size = (
             _size[0] if _size[0] is not None else sg.get_width() - _offset[0],
@@ -167,8 +167,8 @@ class Matpos:
         return Subgrid(next_size, next_origin,  **kwd)
 
     def from_right_top(self, sg, size, offset=(0, 0),  **kwd):
-        _offset = self.to_inches(offset)
-        _size = self.to_inches(size)
+        _offset = self.to_default_unit(offset)
+        _size = self.to_default_unit(size)
 
         next_size = (
             _size[0] if _size[0] is not None else sg.get_width() - _offset[0],
@@ -184,8 +184,8 @@ class Matpos:
         return Subgrid(next_size, next_origin, **kwd)
 
     def from_right_bottom(self, sg, size, offset=(0, 0), **kwd):
-        _offset = self.to_inches(offset)
-        _size = self.to_inches(size)
+        _offset = self.to_default_unit(offset)
+        _size = self.to_default_unit(size)
 
         next_size = (
             _size[0] if _size[0] is not None else sg.get_width() - _offset[0],
@@ -224,9 +224,9 @@ class Matpos:
                 please use margin parameter.
             Default velue is (0,0)
         """
-        _offset = self.to_inches(offset)
-        _size = self.to_inches(size)
-        _margin = self.to_inches(margin)
+        _offset = self.to_default_unit(offset)
+        _size = self.to_default_unit(size)
+        _margin = self.to_default_unit(margin)
 
         d = _margin[0] if type(_margin) is tuple else _margin
 
@@ -245,9 +245,9 @@ class Matpos:
         return Subgrid(next_size, next_origin, **kwd)
 
     def add_bottom(self, sg, size,  margin=0, offset=(0, 0), **kwd):
-        _offset = self.to_inches(offset)
-        _size = self.to_inches(size)
-        _margin = self.to_inches(margin)
+        _offset = self.to_default_unit(offset)
+        _size = self.to_default_unit(size)
+        _margin = self.to_default_unit(margin)
 
         d = _margin[1] if type(_margin) is tuple else _margin
 
@@ -266,9 +266,9 @@ class Matpos:
         return Subgrid(next_size, next_origin, **kwd)
 
     def add_top(self, sg, size,  margin=0, offset=(0, 0), **kwd):
-        _offset = self.to_inches(offset)
-        _size = self.to_inches(size)
-        _margin = self.to_inches(margin)
+        _offset = self.to_default_unit(offset)
+        _size = self.to_default_unit(size)
+        _margin = self.to_default_unit(margin)
 
         d = _margin[1] if type(_margin) is tuple else _margin
         next_origin = (
@@ -286,9 +286,9 @@ class Matpos:
         return Subgrid(next_size, next_origin, **kwd)
 
     def add_left(self, sg, size,  margin=0, offset=(0, 0), **kwd):
-        _offset = self.to_inches(offset)
-        _size = self.to_inches(size)
-        _margin = self.to_inches(margin)
+        _offset = self.to_default_unit(offset)
+        _size = self.to_default_unit(size)
+        _margin = self.to_default_unit(margin)
 
         d = _margin[0] if type(_margin) is tuple else _margin
         next_origin = (
