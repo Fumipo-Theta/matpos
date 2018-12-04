@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import matplotlib.pyplot as plt
-from func_helper import pip, mapping, reducing
+from func_helper import pip
+from func_helper.func_helper.iterator import mapping, reducing
 from .subgrid import Subgrid
 
 
