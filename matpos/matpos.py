@@ -1,22 +1,16 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import matplotlib as matplotlib
 import matplotlib.pyplot as plt
 from func_helper import pip
 from func_helper.func_helper.iterator import mapping, reducing
 from .subgrid import Subgrid
-from typing import List, Tuple, TypeVar, Callable, Dict, Union, Optional
+from typing import List, Tuple, TypeVar, Callable, Union, Optional
+from .type_set import Ax, Figure, Number, Padding, Size, Coordinate
 
 T = TypeVar("T")
 S = TypeVar("S")
 U = TypeVar("U")
 
-Ax = plt.subplot
-Figure = plt.figure
-Number = Union[int,float]
-Padding = Dict[str,Number]
-Size = Tuple[Number,Number]
-Coordinate = Tuple[Number,Number]
 
 def vectorize(f:Callable[[S],U])->Callable[[T],T]:
     def apply(arg: T)->T:
