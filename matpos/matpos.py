@@ -1,19 +1,31 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import matplotlib as matplotlib
 import matplotlib.pyplot as plt
 from func_helper import pip
 from func_helper.func_helper.iterator import mapping, reducing
 from .subgrid import Subgrid
+from typing import List, Tuple, TypeVar, Callable, Dict, Union, Optional
 
+T = TypeVar("T")
+S = TypeVar("S")
+U = TypeVar("U")
 
-def vectorize(f):
-    def apply(arg):
+Ax = plt.subplot
+Figure = plt.figure
+Number = Union[int,float]
+Padding = Dict[str,Number]
+Size = Tuple[Number,Number]
+Coordinate = Tuple[Number,Number]
+
+def vectorize(f:Callable[[S],U])->Callable[[T],T]:
+    def apply(arg: T)->T:
         if type(arg) is list:
             return [f(x) for x in arg]
         elif type(arg) is tuple:
-            return tuple([f(x) for x in arg])
+            return tuple(f(x) for x in arg)
         elif type(arg) is dict:
-            return dict([(k, f(v)) for k, v in arg.items()])
+            return {k:f(v) for k, v in arg.items()}
         else:
             return f(arg)
     return apply
@@ -27,7 +39,7 @@ class Matpos:
             the former subplot
     """
 
-    def __init__(self, unit="inches", dpi=72):
+    def __init__(self, unit:str="inches", dpi:str=72):
         """
         Generate instance.
         With setup unit of length and dpi optionally.
@@ -54,7 +66,7 @@ class Matpos:
         self.to_default_unit = Matpos.IToDefaultUnit(unit, dpi)
 
     @staticmethod
-    def IToDefaultUnit(unit, dpi):
+    def IToDefaultUnit(unit:str, dpi:int) -> Callable[[T],T]:
         if unit is "mm":
             return vectorize(lambda x: x/25.4 if x else x)
         elif unit is "cm":
@@ -64,7 +76,7 @@ class Matpos:
         else:
             return vectorize(lambda x: x)
 
-    def get_padding(self, padding):
+    def get_padding(self, padding:Padding)->Padding:
         """
         Reset padding.
 
@@ -89,7 +101,7 @@ class Matpos:
         }
         return {**_padding, **self.to_default_unit(padding)}
 
-    def get_width(self):
+    def get_width(self)->Number:
         """
         Width of rectangle containing all plot areas of subplots.
         Not containing axis and ticks area of subplots
@@ -97,7 +109,7 @@ class Matpos:
         """
         return (self.right_bottom[0] - self.left_top[0])
 
-    def get_height(self):
+    def get_height(self)->Number:
         """
         Hight of rectangle containing all plot areas of subplots.
         Not containing axis and ticks area of subplots
@@ -105,7 +117,7 @@ class Matpos:
         """
         return (self.right_bottom[1] - self.left_top[1])
 
-    def get_size(self):
+    def get_size(self)->Size:
         """
         Tuple of (Width, Hight) of rectangle containing
             all plot areas of subplots.
@@ -114,7 +126,7 @@ class Matpos:
         """
         return (self.get_width(), self.get_height())
 
-    def __expand(self, sg_origin, sg_size):
+    def __expand(self, sg_origin:Coordinate, sg_size:Size):
         """
         Expanding rectangle of plot areas
             if the new subplot over the rectangle.
@@ -129,7 +141,7 @@ class Matpos:
             np.max([self.right_bottom[1], sg_origin[1] + sg_size[1]])
         )
 
-    def from_left_top(self, sg, size, offset=(0, 0), **kwd):
+    def from_left_top(self, sg:Subgrid, size:Size, offset:Size=(0, 0), **kwd)->Subgrid:
         """
         Layout a new subplot based on the position of
             left-top corner of the former subplot.
@@ -150,7 +162,7 @@ class Matpos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin,  **kwd)
 
-    def from_left_bottom(self, sg, size, offset=(0, 0),  **kwd):
+    def from_left_bottom(self, sg:Subgrid, size:Size, offset:Size=(0, 0), **kwd)->Subgrid:
         _offset = self.to_default_unit(offset)
         _size = self.to_default_unit(size)
 
@@ -167,7 +179,7 @@ class Matpos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin,  **kwd)
 
-    def from_right_top(self, sg, size, offset=(0, 0),  **kwd):
+    def from_right_top(self, sg:Subgrid, size:Size, offset:Size=(0, 0), **kwd)->Subgrid:
         _offset = self.to_default_unit(offset)
         _size = self.to_default_unit(size)
 
@@ -184,7 +196,7 @@ class Matpos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def from_right_bottom(self, sg, size, offset=(0, 0), **kwd):
+    def from_right_bottom(self, sg:Subgrid, size:Size, offset:Size=(0, 0), **kwd)->Subgrid:
         _offset = self.to_default_unit(offset)
         _size = self.to_default_unit(size)
 
@@ -201,7 +213,7 @@ class Matpos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_right(self, sg, size,  margin=0, offset=(0, 0), **kwd):
+    def add_right(self, sg:Subgrid, size:Size, margin:Union[Number,Size]=0, offset:Size=(0, 0), **kwd)->Subgrid:
         """
         Layout a new subplot on the right side of the
             former subplot.
@@ -245,7 +257,7 @@ class Matpos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_bottom(self, sg, size,  margin=0, offset=(0, 0), **kwd):
+    def add_bottom(self, sg:Subgrid, size:Size, margin:Union[Number,Size]=0, offset:Size=(0, 0), **kwd)->Subgrid:
         _offset = self.to_default_unit(offset)
         _size = self.to_default_unit(size)
         _margin = self.to_default_unit(margin)
@@ -266,7 +278,7 @@ class Matpos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_top(self, sg, size,  margin=0, offset=(0, 0), **kwd):
+    def add_top(self, sg:Subgrid, size:Size, margin:Union[Number,Size]=0, offset:Size=(0, 0), **kwd)->Subgrid:
         _offset = self.to_default_unit(offset)
         _size = self.to_default_unit(size)
         _margin = self.to_default_unit(margin)
@@ -286,7 +298,7 @@ class Matpos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_left(self, sg, size,  margin=0, offset=(0, 0), **kwd):
+    def add_left(self, sg:Subgrid, size:Size, margin:Union[Number,Size]=0, offset:Size=(0, 0), **kwd)->Subgrid:
         _offset = self.to_default_unit(offset)
         _size = self.to_default_unit(size)
         _margin = self.to_default_unit(margin)
@@ -306,7 +318,7 @@ class Matpos:
         self.__expand(next_origin, next_size)
         return Subgrid(next_size, next_origin, **kwd)
 
-    def add_grid(self, sizes, column=1, margin=(0, 0), **kwd):
+    def add_grid(self, sizes:List[Size], column:int=1, margin:Union[Number,Size]=(0, 0), **kwd)->List[Subgrid]:
         """
         Generates subgrids aligning as grid layout.
         Order of subgrid is column prefered.
@@ -364,7 +376,7 @@ class Matpos:
 
         return reducing(reducer)([a])(rest_sizes)
 
-    def __scale(self, v, padding={}):
+    def __scale(self, v:Union[Coordinate,Size], padding:Padding={})->Union[Coordinate,Size]:
         """
         Scaling position in figure by figure size.
         Padding is took into considered.
@@ -384,7 +396,7 @@ class Matpos:
             np.divide(np.add(v, np.multiply(origin, -1)), size)
         )
 
-    def relative(self, subgrid, padding={}):
+    def relative(self, subgrid:Subgrid, padding:Padding={})->Tuple[Coordinate,Coordinate]:
         """
         Return scaled position of left-top and right-bottom
             corners of a subgrid.
@@ -394,7 +406,7 @@ class Matpos:
         rel_right_bottom = self.__scale(subgrid.get_right_bottom(), padding)
         return (rel_left_top, rel_right_bottom)
 
-    def axes_position(self, subgrid, padding={}):
+    def axes_position(self, subgrid:Subgrid, padding:Padding={})->List[Number]:
         """
         Return matplotlib style position of ax.
         """
@@ -402,7 +414,7 @@ class Matpos:
         position = [lt[0], 1 - rb[1], rb[0] - lt[0], rb[1] - lt[1]]
         return position
 
-    def generate_axes(self, figure, padding={}):
+    def generate_axes(self, figure:Figure, padding:Padding={})->Callable[[Subgrid],Ax]:
         """
         Generate matplotlib.pyplot.axsubplot.
 
@@ -414,7 +426,7 @@ class Matpos:
             -------
             ax: matplotlib.pyplot.axsubplot
         """
-        def f(subgrid):
+        def f(subgrid:Subgrid)->Ax:
             ax = figure.add_subplot(
                 111,
                 position=self.axes_position(subgrid, padding),
@@ -425,7 +437,12 @@ class Matpos:
             return ax
         return f
 
-    def figure_and_axes(self, subgrids, padding={}, figsize=None, dpi=None, **kwargs):
+    def figure_and_axes(self,
+        subgrids:List[Subgrid],
+        padding:Padding={},
+        figsize:Optional[Size]=None,
+        dpi:Optional[int]=None,
+        **kwargs)->Tuple[Figure,List[Ax]]:
         """
         Generate matplotlib.pyplot.figure and its subplots of
             matplotlib.pyplot.axsubplot.
@@ -466,7 +483,7 @@ class Matpos:
         return(fig, axs)
 
     @staticmethod
-    def fontsize_to_inch(fontsize, n):
+    def fontsize_to_inch(fontsize:Number, n:int, dpi:int=72)->Number:
         """
         Assist determin padding size when font size
             and number of characters are given.
@@ -488,4 +505,4 @@ class Matpos:
         padding = MatPos.fontsize_to_point(12, 5)
 
         """
-        return fontsize*n/72
+        return fontsize*n/dpi
