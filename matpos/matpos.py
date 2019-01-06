@@ -405,6 +405,8 @@ class Matpos:
         Return matplotlib style position of ax.
         """
         lt, rb = self.relative(subgrid, padding)
+
+        # [left,bottom,width,height]
         position = [lt[0], 1 - rb[1], rb[0] - lt[0], rb[1] - lt[1]]
         return position
 
