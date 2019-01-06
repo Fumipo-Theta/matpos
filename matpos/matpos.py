@@ -421,9 +421,8 @@ class Matpos:
             ax: matplotlib.pyplot.axsubplot
         """
         def f(subgrid:Subgrid)->Ax:
-            ax = figure.add_subplot(
-                111,
-                position=self.axes_position(subgrid, padding),
+            ax = figure.add_axes(
+                self.axes_position(subgrid, padding),
                 **subgrid.get_axes_kwargs(),
                 **subgrid.get_shared_axis()
             )
